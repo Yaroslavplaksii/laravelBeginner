@@ -14,3 +14,5 @@
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/admin','Admin\DashboardControlller@index');
+Route::resource('/admin/categories','Admin\CategoriesController');

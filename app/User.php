@@ -8,8 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use Notifiable;
-const IS_UNBAN = 1;
-const IS_BAN = 0;
+    const IS_UNBAN = 1;
+    const IS_BAN = 0;
     /**
      * The attributes that are mass assignable.
      *
@@ -28,15 +28,18 @@ const IS_BAN = 0;
         'password', 'remember_token',
     ];
 
-    public function posts(){
+    public function posts()
+    {
         return $this->hasMany(Post::class);
     }
 
-    public function comments(){
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
 
-    public function add($fields){//метод додавання користувача
+    public function add($fields)
+    {//метод додавання користувача
         $user = new static;//поточний клас
         $user->fill($fields);//беремо і додаємо поля які вказані в масиві $fillable
         $user->password = bcrypt($fields['password']);//зашифровуємо пароль
@@ -44,16 +47,21 @@ const IS_BAN = 0;
 
         return $user;//якщо потрібно
     }
-    public function edit($fields){//метод зміни користувача
+
+    public function edit($fields)
+    {//метод зміни користувача
 
         $this->fill($fields);//беремо і додаємо поля які вказані в масиві $fillable
         $this->password = bcrypt($fields['password']);//зашифровуємо пароль
         $this->save();//зберігаємо
     }
-    public function remove(){//видалення користувача
+
+    public function remove()
+    {//видалення користувача
         Storage::delete('uploads/' . $this->image);//видалення старого зображення
         $this->delete();
     }
+
     public function uploadAvatar($image)//метод додавання аватара
     {
         if ($image == null) {//якщо зображення не було вибрано
@@ -65,6 +73,7 @@ const IS_BAN = 0;
         $this->image = $filename;
         $this->save();
     }
+
     public function getImage()
     {//метод який виведе аватар
         if ($this->image == null) {
@@ -72,29 +81,40 @@ const IS_BAN = 0;
         }
         return "/uploads/" . $this->image;
     }
-    public function makeAdmin(){//метод який переводить користувача в адміни
+
+    public function makeAdmin()
+    {//метод який переводить користувача в адміни
         $this->is_admin = 1;
     }
-    public function makeNormal(){//метод який переводить користувача в звичайний статус
+
+    public function makeNormal()
+    {//метод який переводить користувача в звичайний статус
         $this->is_admin = 0;
     }
 
-    public function toggleAdmin($value){//обєднуємо в один метод створення статутсу для користувача
-        if($value == null){
+    public function toggleAdmin($value)
+    {//обєднуємо в один метод створення статутсу для користувача
+        if ($value == null) {
             return $this->makeNormal();
         }
         return $this->makeAdmin();
     }
-    public function ban(){
-    $this->status = User::IS_BAN;
+
+    public function ban()
+    {
+        $this->status = User::IS_BAN;
         $this->save();
-}
-    public function unban(){
+    }
+
+    public function unban()
+    {
         $this->status = User::IS_UNBAN;
         $this->save();
     }
-    public function toggleBan($value){
-        if($value == null){
+
+    public function toggleBan($value)
+    {
+        if ($value == null) {
             return $this->ban();
         }
         return $this->unban();

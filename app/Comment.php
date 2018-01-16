@@ -35,7 +35,9 @@ class Comment extends Model
         }
         return $this->disallow();
     }
-    public function remove(){
+
+    public function remove()
+    {
         $this->delete();
     }
 
