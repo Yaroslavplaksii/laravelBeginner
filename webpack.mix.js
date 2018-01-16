@@ -27,3 +27,4 @@ mix.scripts(['resources/assets/admin/plugins/jQuery/jquery-2.2.3.min.js',
     'resources/assets/admin/dist/js/demo.js'], 'public/js/admin.js');
 mix.copy('resources/assets/admin/bootstrap/fonts','public/fonts');
 mix.copy('resources/assets/admin/dist/fonts','public/fonts');
+mix.copy('resources/assets/admin/dist/img','public/img');
