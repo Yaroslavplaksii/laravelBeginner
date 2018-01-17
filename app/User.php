@@ -2,6 +2,7 @@
 
 namespace App;
 
+use \Storage;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -38,7 +39,7 @@ class User extends Authenticatable
         return $this->hasMany(Comment::class);
     }
 
-    public function add($fields)
+    public static function add($fields)
     {//метод додавання користувача
         $user = new static;//поточний клас
         $user->fill($fields);//беремо і додаємо поля які вказані в масиві $fillable
@@ -58,28 +59,31 @@ class User extends Authenticatable
 
     public function remove()
     {//видалення користувача
-        Storage::delete('uploads/' . $this->image);//видалення старого зображення
+        Storage::delete('uploads/' . $this->avatar);//видалення старого зображення
         $this->delete();
     }
 
-    public function uploadAvatar($image)//метод додавання аватара
+    public function uploadAvatar($avatar)//метод додавання аватара
     {
-        if ($image == null) {//якщо зображення не було вибрано
+        if ($avatar == null) {//якщо зображення не було вибрано
             return;
         }
-        Storage::delete('uploads/' . $this->image);//видалення старого зображення
-        $filename = str_random(10) . '.' . $image->extension();
-        $image->saveAs('uploads', $filename);//директорія вказується відносно згидшс
-        $this->image = $filename;
+        if ($this->avatar != null) {
+            Storage::delete('uploads/' . $this->avatar);
+        }
+        Storage::delete('uploads/' . $this->avatar);//видалення старого зображення
+        $filename = str_random(10) . '.' . $avatar->extension();
+        $avatar->StoreAs('uploads', $filename);//директорія вказується відносно згидшс
+        $this->avatar = $filename;
         $this->save();
     }
 
     public function getImage()
     {//метод який виведе аватар
-        if ($this->image == null) {
+        if ($this->avatar == null) {
             return '/img/no-user.png';//коли немає зображення
         }
-        return "/uploads/" . $this->image;
+        return "/uploads/" . $this->avatar;
     }
 
     public function makeAdmin()
