@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email',//вказуємо масив полів, які будемо міняти
     ];
 
     /**
@@ -51,31 +51,38 @@ class User extends Authenticatable
 
     public function edit($fields)
     {//метод зміни користувача
-
         $this->fill($fields);//беремо і додаємо поля які вказані в масиві $fillable
-        $this->password = bcrypt($fields['password']);//зашифровуємо пароль
         $this->save();//зберігаємо
     }
-
+    public function generatePassword($password)
+    {
+        if($password != null)
+        {
+            $this->password = bcrypt($password);
+            $this->save();
+        }
+    }
     public function remove()
     {//видалення користувача
-        Storage::delete('uploads/' . $this->avatar);//видалення старого зображення
+        $this->removeAvatar();//видалення старого зображення
         $this->delete();
     }
 
-    public function uploadAvatar($avatar)//метод додавання аватара
+    public function uploadAvatar($image)//метод додавання аватара
     {
-        if ($avatar == null) {//якщо зображення не було вибрано
-            return;
-        }
-        if ($this->avatar != null) {
-            Storage::delete('uploads/' . $this->avatar);
-        }
-        Storage::delete('uploads/' . $this->avatar);//видалення старого зображення
-        $filename = str_random(10) . '.' . $avatar->extension();
-        $avatar->StoreAs('uploads', $filename);//директорія вказується відносно згидшс
+        if($image == null) { return; }
+        $this->removeAvatar();
+        $filename = str_random(10) . '.' . $image->extension();
+        $image->storeAs('uploads', $filename);//якщо не буде директорыъ то створить
         $this->avatar = $filename;
         $this->save();
+    }
+    public function removeAvatar()
+    {
+        if($this->avatar != null)
+        {
+            Storage::delete('uploads/' . $this->avatar);
+        }
     }
 
     public function getImage()

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;//для валідації полів
 use App\Http\Controllers\Controller;
 
 class UsersController extends Controller
@@ -15,7 +16,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+      $users = User::all();
       return view('admin.users.index',['users'=>$users]);
     }
 
@@ -26,7 +27,6 @@ class UsersController extends Controller
      */
     public function create()
     {
-
         return view('admin.users.create');
     }
 
@@ -40,24 +40,14 @@ class UsersController extends Controller
     {
         $this->validate($request,
             ['name' => 'required',
-              'email' => 'required|email',
+              'email' => 'required|email|unique:users',
               'password' =>  'required',
               'avatar'  => 'nullable|image'
             ]);
         $user = User::add($request->all());
+        $user->generatePassword($request->get('password'));
         $user->uploadAvatar($request->file('avatar'));
         return redirect()->route('users.index');
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**
@@ -68,7 +58,8 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        return view('admin.users.edit');
+        $user = User::find($id);
+        return view('admin.users.edit',['user'=>$user]);//[compact($user)]<==>['user'=>$user]
     }
 
     /**
@@ -80,7 +71,20 @@ class UsersController extends Controller
      */
     public function update(Request $request, $id)
     {
-
+        $user = User::find($id);
+        $this->validate($request,
+            ['name' => 'required',
+                'email' => [
+                    'required',
+                    'email',
+                    Rule::unique('users')->ignore($user->id)//перевірка на унікальність крім поточного запису
+                ],
+                'avatar'  => 'nullable|image'
+            ]);
+        $user->edit($request->all());
+        $user->generatePassword($request->get('password'));
+        $user->uploadAvatar($request->file('avatar'));
+        return redirect()->route('users.index');
     }
 
     /**
@@ -91,6 +95,7 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+        User::find($id)->remove();
+        return redirect()->route('users.index');
     }
 }

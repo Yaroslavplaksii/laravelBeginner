@@ -1,10 +1,10 @@
-@extends('admn.dashboard')
+@extends('admin.dashboard')
 @section('content')
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1>
-            Добавить пользователя
+            Редагування користувача
             <small>приятные слова..</small>
         </h1>
     </section>
@@ -15,26 +15,28 @@
         <!-- Default box -->
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title">Добавляем пользователя</h3>
+                <h3 class="box-title">Редагування користувача</h3>
             </div>
+            @include('admin.errors')
+            {!! Form::open(['route' =>['users.update',$user->id],'method'=>'put','files'=>true]) !!}
             <div class="box-body">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="exampleInputEmail1">Имя</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="" value="Рахим">
+                        <input type="text" class="form-control" name="name" id="exampleInputEmail1" placeholder="" value="{{$user->name}}">
                     </div>
                     <div class="form-group">
                         <label for="exampleInputEmail1">E-mail</label>
-                        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="" value="rahim@marlindev.ru">
+                        <input type="text" name="email" class="form-control" id="exampleInputEmail1" placeholder="" value="{{$user->email}}">
                     </div>
                     <div class="form-group">
                         <label for="exampleInputEmail1">Пароль</label>
-                        <input type="password" class="form-control" id="exampleInputEmail1" placeholder="">
+                        <input type="password" name="password" class="form-control" id="exampleInputEmail1" placeholder="">
                     </div>
                     <div class="form-group">
-                        <img src="../assets/dist/img/photo1.png" alt="" width="200" class="img-responsive">
+                        <img src="{{$user->getImage()}}" alt="" width="200" class="img-responsive">
                         <label for="exampleInputFile">Аватар</label>
-                        <input type="file" id="exampleInputFile">
+                        <input type="file" name="avatar" id="exampleInputFile">
 
                         <p class="help-block">Какое-нибудь уведомление о форматах..</p>
                     </div>
@@ -45,6 +47,7 @@
                 <button class="btn btn-default">Назад</button>
                 <button class="btn btn-warning pull-right">Изменить</button>
             </div>
+        {!! Form::close() !!}
             <!-- /.box-footer-->
         </div>
         <!-- /.box -->
