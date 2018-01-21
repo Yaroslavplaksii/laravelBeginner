@@ -26,9 +26,9 @@
                     </div>
 
                     <div class="form-group">
-                        <img src="../assets/dist/img/boxed-bg.jpg" alt="" class="img-responsive" width="200">
+                        <img src="{{$post->getImage()}}" alt="" class="img-responsive" width="200">
                         <label for="exampleInputFile">Лицевая картинка</label>
-                        <input type="file" id="exampleInputFile">
+                        <input type="file" name="image" id="exampleInputFile">
 
                         <p class="help-block">Какое-нибудь уведомление о форматах..</p>
                     </div>

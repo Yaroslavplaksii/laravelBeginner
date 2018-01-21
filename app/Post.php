@@ -2,9 +2,8 @@
 
 namespace App;
 
-use \Storage;
-use Carbon\Carbon;//клас для роботи з датами
-//use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 
@@ -12,38 +11,54 @@ class Post extends Model
 {
     use Sluggable;
 
-    protected $fillable = ['title', 'content','date'];
-
     const IS_DRAFT = 0;
     const IS_PUBLIC = 1;
 
+    protected $fillable = ['title','content', 'date', 'description'];
+
     public function category()
     {
-        return $this->belongsTo(Category::class);
-        //return $this->hasOne(Category::class);//звязки один до одного
+        return $this->belongsTo(Category::class);//зворотнє відношення Категорія до багатьох записів
     }
 
     public function author()
     {
-         return $this->hasOne(User::class);//модель
+        return $this->belongsTo(User::class, 'user_id');//за змовчуванням поле по якому звязуються таблиці
+        //за замовчуванням малоб бути author_id по назві таблиці, тому другим параметром вказуємо яке поле будемо використовувати
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 
     public function tags()
     {
-        return $this->belongsTo(User::class, 'user_id');
-//        return $this->belongToMany(//звязки багато до багатьох
-//            Tag::class,//модель
-//            'post_tags',//назва таблиці
-//            'post_id',//id запису
-//            'tag_id'//id мітки
-//        );
+        return $this->belongsToMany(
+            Tag::class,
+            'post_tags',
+            'post_id',
+            'tag_id'
+        );
+    }
+
+    public function sluggable()
+    {
+        return [
+            'slug' => [
+                'source' => 'title'
+            ]
+        ];
     }
 
     public static function add($fields)
     {
         $post = new static;
         $post->fill($fields);
+        $post->user_id = 1;// Auth::user()->id;
         $post->save();
+
+        return $post;
     }
 
     public function edit($fields)
@@ -58,102 +73,105 @@ class Post extends Model
         $this->delete();
     }
 
-    public function uploadThumb($image)
+    public function removeImage()
     {
-        if ($image == null) {//якщо зображення не було вибрано
-            return;
+        if($this->image != null)
+        {
+            Storage::delete('uploads/' . $this->image);
         }
+    }
+
+    public function uploadImage($image)
+    {
+        if($image == null) { return; }
+
         $this->removeImage();
         $filename = str_random(10) . '.' . $image->extension();
-        $image->storeAs('uploads', $filename);//директорія вказується відносно public
+        $image->storeAs('uploads', $filename);
         $this->image = $filename;
         $this->save();
     }
-    public function removeImage(){
-        if($this->image != null){
-            Storage::delete('uploads/' . $this->image);//видалення старого зображення
+
+    public function getImage()
+    {
+        if($this->image == null)
+        {
+            return '/img/no-image.png';
         }
+
+        return '/uploads/' . $this->image;
+
     }
+
     public function setCategory($id)
     {
-        if ($id == null) {
-            return;
-        }
+        if($id == null) {return;}
         $this->category_id = $id;
         $this->save();
     }
 
     public function setTags($ids)
     {
-        if ($ids == null) {
-            return;
-        }
-        $this->tags()->sync($ids);//синхронізуємо з id тегів
-        //в даному прикладі це буде типу ->sync([2,4,6,8])
-        //кожен раз коли ми міняємо набір id тегів, то всі
-        // видаляються а потім наново записуються
+        if($ids == null){return;}
+
+        $this->tags()->sync($ids);
     }
 
     public function setDraft()
-    { //статус публікації "чорновик"
+    {
         $this->status = Post::IS_DRAFT;
         $this->save();
     }
 
     public function setPublic()
-    { //статус публікації "публікувати"
-        $this->status = Post::IS_PUBLIC;//можна через констатнти
+    {
+        $this->status = Post::IS_PUBLIC;
         $this->save();
     }
 
-    public function togleStatus($value)
-    {//метод який по заданому параметру буде записувати статус публыкації
-        if ($value == null) {
+    public function toggleStatus($value)
+    {
+        if($value == null)
+        {
             return $this->setDraft();
         }
+
         return $this->setPublic();
     }
 
-    public function setFutured()
-    { //виведення публікації в рекомендованих
-        $this->is_futured = 1;
+    public function setFeatured()
+    {
+        $this->is_featured = 1;
         $this->save();
     }
 
     public function setStandart()
     {
-        $this->is_futured = 0;
+        $this->is_featured = 0;
         $this->save();
     }
 
-    public function togleFutured($value)
-    {//метод який по заданому параметру буде виводити публікацію в рекомендованих
-        if ($value == null) {
-            return $this->setFutured();
-        }
-        return $this->setStandart();
-    }
-
-    public function getImage()
-    {//метод який виведе зображення
-        if ($this->image == null) {
-            return '/img/no-image.png';//коли немає зображення
-        }
-        return "/uploads/" . $this->image;
-    }
-
-    /**
-     * Return the sluggable configuration array for this model.
-     *
-     * @return array
-     */
-    public function sluggable()
+    public function toggleFeatured($value)
     {
-        return [
-            'slug' => [
-                'source' => 'title'
-            ]
-        ];
+        if($value == null)
+        {
+            return $this->setStandart();
+        }
+
+        return $this->setFeatured();
+    }
+
+    public function setDateAttribute($value)
+    {
+        $date = Carbon::createFromFormat('d/m/y', $value)->format('Y-m-d');
+        $this->attributes['date'] = $date;
+    }
+
+    public function getDateAttribute($value)
+    {
+        $date = Carbon::createFromFormat('Y-m-d', $value)->format('d/m/y');
+
+        return $date;
     }
 
     public function getCategoryTitle()
@@ -165,21 +183,60 @@ class Post extends Model
 
     public function getTagsTitles()
     {
-        return (!empty($this->tags))
+        return (!$this->tags->isEmpty())
             ?   implode(', ', $this->tags->pluck('title')->all())
             : 'Нет тегов';
     }
-    public function setDateAttribute($value)
+
+    public function getCategoryID()
     {
-        $date = Carbon::createFromFormat('d/m/y', $value)->format('Y-m-d');//переводить в потрібний формат
-        $this->attributes['date'] = $date;
+        return $this->category != null ? $this->category->id : null;
     }
 
-    public function getDateAttribute($value)
+    public function getDate()
     {
-        $date = Carbon::createFromFormat('Y-m-d', $value)->format('d/m/y');
-
-        return $date;
+        return Carbon::createFromFormat('d/m/y', $this->date)->format('F d, Y');
     }
 
+    public function hasPrevious()
+    {
+        return self::where('id', '<', $this->id)->max('id');
+    }
+
+    public function getPrevious()
+    {
+        $postID = $this->hasPrevious(); //ID
+        return self::find($postID);
+    }
+
+    public function hasNext()
+    {
+        return self::where('id', '>', $this->id)->min('id');
+    }
+
+    public function getNext()
+    {
+        $postID = $this->hasNext();
+        return self::find($postID);
+    }
+
+    public function related()
+    {
+        return self::all()->except($this->id);
+    }
+
+    public function hasCategory()
+    {
+        return $this->category != null ? true : false;
+    }
+
+    public static function getPopularPosts()
+    {
+        return self::orderBy('views','desc')->take(3)->get();
+    }
+
+    public function getComments()
+    {
+        return $this->comments()->where('status', 1)->get();
+    }
 }

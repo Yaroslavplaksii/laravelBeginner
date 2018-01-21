@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Post;
 use App\Tag;
+use App\Post;
 use App\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -17,8 +17,8 @@ class PostsController extends Controller
      */
     public function index()
     {
-       $posts = Post::all();
-       return view('admin.posts.index',['posts' => $posts]);
+        $posts = Post::all();
+        return view('admin.posts.index', ['posts'=>$posts]);
     }
 
     /**
@@ -28,9 +28,13 @@ class PostsController extends Controller
      */
     public function create()
     {
-        $tags = Tag::pluck('title','id')->all();
-        $categories = Category::pluck('title','id')->all();
-        return view('admin.posts.create',['tags'=>$tags,'categories'=>$categories]);
+        $categories = Category::pluck('title', 'id')->all();//поверне масив
+        $tags = Tag::pluck('title', 'id')->all();
+
+        return view('admin.posts.create', compact(
+            'categories',
+            'tags'
+        ));
     }
 
     /**
@@ -40,27 +44,23 @@ class PostsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {//dd($request->file('image'));
-        $this->validate($request,
-            ['title'=>'required',
-            'content'=>'required',
-            'date'=>'required',
-             'image'=>'nullable|image']);
+    {
+        $this->validate($request, [
+            'title' =>'required',
+            'content'   =>  'required',
+            'date'  =>  'required',
+            'image' =>  'nullable|image'
+        ]);
 
         $post = Post::add($request->all());
-        if($request->file('image') != null){
-            $post->uploadThumb($request->file('image'));
-        }
+        $post->uploadImage($request->file('image'));
         $post->setCategory($request->get('category_id'));
         $post->setTags($request->get('tags'));
         $post->toggleStatus($request->get('status'));
-        $post->toggleFeatured($request->get('is_futured'));
+        $post->toggleFeatured($request->get('is_featured'));
 
         return redirect()->route('posts.index');
-        //Post::create($request->all());
-       // return redirect()->route('posts.index');
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -71,7 +71,17 @@ class PostsController extends Controller
     public function edit($id)
     {
         $post = Post::find($id);
-        return view('admin.posts.edit',['post'=>$post]);
+        $categories = Category::pluck('title', 'id')->all();
+        $tags = Tag::pluck('title', 'id')->all();
+        $selectedTags = $post->tags->pluck('id')->all();
+
+        return view('admin.posts.edit', compact(
+            'categories',
+            'tags',
+            'post',
+            'selectedTags'
+        ));
+
     }
 
     /**
@@ -83,11 +93,21 @@ class PostsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request,
-            ['title'=>'required',
-                'content'=>'required']);
+        $this->validate($request, [
+            'title' =>'required',
+            'content'   =>  'required',
+            'date'  =>  'required',
+            'image' =>  'nullable|image'
+        ]);
+
         $post = Post::find($id);
-        $post->update($request->all());
+        $post->edit($request->all());
+        $post->uploadImage($request->file('image'));
+        $post->setCategory($request->get('category_id'));
+        $post->setTags($request->get('tags'));
+        $post->toggleStatus($request->get('status'));
+        $post->toggleFeatured($request->get('is_featured'));
+
         return redirect()->route('posts.index');
     }
 
@@ -99,7 +119,7 @@ class PostsController extends Controller
      */
     public function destroy($id)
     {
-        Post::find($id)->delete();
+        Post::find($id)->remove();
         return redirect()->route('posts.index');
     }
 }
