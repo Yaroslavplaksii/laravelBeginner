@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class MakePasswordNullable extends Migration
+class AddFieldImageFromPost extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class MakePasswordNullable extends Migration
      */
     public function up()
     {
-        Schema::table('users',function(Blueprint $table){
-            $table->string('password',255)->nullable()->change();
+        Schema::table('posts', function (Blueprint $table) {
+            $table->string('image',255)->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class MakePasswordNullable extends Migration
      */
     public function down()
     {
-        Schema::table('users',function(Blueprint $table){
-            $table->string('password',255)->change();
+        Schema::create('posts', function (Blueprint $table) {
+            $table->dropColum('image',255);
         });
     }
 }

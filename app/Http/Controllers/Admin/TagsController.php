@@ -42,16 +42,6 @@ class TagsController extends Controller
         return redirect()->route('tags.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -89,6 +79,6 @@ class TagsController extends Controller
     public function destroy($id)
     {
         Tag::find($id)->delete();
-        return redirect()->route('tags.index');
+        return redirect()->route('posts.index');
     }
 }

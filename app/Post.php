@@ -2,7 +2,9 @@
 
 namespace App;
 
-use Illuminate\Support\Facades\Storage;
+use \Storage;
+use Carbon\Carbon;//клас для роботи з датами
+//use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 
@@ -10,29 +12,31 @@ class Post extends Model
 {
     use Sluggable;
 
-    protected $fillable = ['title', 'content'];
+    protected $fillable = ['title', 'content','date'];
 
     const IS_DRAFT = 0;
     const IS_PUBLIC = 1;
 
     public function category()
     {
-        return $this->hasOne(Category::class);//звязки один до одного
+        return $this->belongsTo(Category::class);
+        //return $this->hasOne(Category::class);//звязки один до одного
     }
 
     public function author()
     {
-        return $this->hasOne(User::class);//модель
+         return $this->hasOne(User::class);//модель
     }
 
     public function tags()
     {
-        return $this->belongToMany(//звязки багато до багатьох
-            Tag::class,//модель
-            'post_tags',//назва таблиці
-            'post_id',//id запису
-            'tag_id'//id мітки
-        );
+        return $this->belongsTo(User::class, 'user_id');
+//        return $this->belongToMany(//звязки багато до багатьох
+//            Tag::class,//модель
+//            'post_tags',//назва таблиці
+//            'post_id',//id запису
+//            'tag_id'//id мітки
+//        );
     }
 
     public static function add($fields)
@@ -50,22 +54,26 @@ class Post extends Model
 
     public function remove()
     {
-        Storage::delete('uploads/' . $this->image);//видалення старого зображення
+        $this->removeImage();
         $this->delete();
     }
 
-    public function uploadImage($image)
+    public function uploadThumb($image)
     {
         if ($image == null) {//якщо зображення не було вибрано
             return;
         }
-        Storage::delete('uploads/' . $this->image);//видалення старого зображення
+        $this->removeImage();
         $filename = str_random(10) . '.' . $image->extension();
-        $image->saveAs('uploads', $filename);//директорія вказується відносно згидшс
+        $image->storeAs('uploads', $filename);//директорія вказується відносно public
         $this->image = $filename;
         $this->save();
     }
-
+    public function removeImage(){
+        if($this->image != null){
+            Storage::delete('uploads/' . $this->image);//видалення старого зображення
+        }
+    }
     public function setCategory($id)
     {
         if ($id == null) {
@@ -147,4 +155,31 @@ class Post extends Model
             ]
         ];
     }
+
+    public function getCategoryTitle()
+    {
+        return ($this->category != null)
+            ?   $this->category->title
+            :   'Нет категории';
+    }
+
+    public function getTagsTitles()
+    {
+        return (!empty($this->tags))
+            ?   implode(', ', $this->tags->pluck('title')->all())
+            : 'Нет тегов';
+    }
+    public function setDateAttribute($value)
+    {
+        $date = Carbon::createFromFormat('d/m/y', $value)->format('Y-m-d');//переводить в потрібний формат
+        $this->attributes['date'] = $date;
+    }
+
+    public function getDateAttribute($value)
+    {
+        $date = Carbon::createFromFormat('Y-m-d', $value)->format('d/m/y');
+
+        return $date;
+    }
+
 }
