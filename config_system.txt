@@ -1,0 +1,27 @@
+Xampp Virtual Host
+We will configure a Virtual Host in Xampp for a Laravel project, and in this example, we want to configure the domain laravel.dev for our project.
+
+We need to edit httpd-vhosts.conf that is located in C:\xampp\apache\conf\extra\httpd-vhosts.conf and add following lines at the end of the file:
+
+# VirtualHost for LARAVEL.DEV
+
+<VirtualHost laravel.dev:80>
+  DocumentRoot "C:\xampp\htdocs\laravel\public"
+  ServerAdmin laravel.dev
+  <Directory "C:\xampp\htdocs\laravel">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+  </Directory>
+</VirtualHost>
+
+After this, our apache is listening to laravel.dev connections, but we have to configure our hosts file that allows to redirect laravel.dev to the localhost that is located in C:\Windows\System32\drivers\etc
+
+IMPORTANT!: To edit this file, maybe we should give access, click properties and allow your user to modify this file.
+Edit hosts file adding our localhost for laravel.dev:
+
+# localhost name resolution is handled within DNS itself.
+#	127.0.0.1       localhost
+#	::1             localhost
+
+127.0.0.1	laravel.dev
