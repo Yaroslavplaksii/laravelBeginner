@@ -17,6 +17,7 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Обновляем статью</h3>
             </div>
+            @include('admin.errors')
             {!! Form::open(['route' => ['posts.update',$post->id],'method'=>'put','files'=>true]) !!}
             <div class="box-body">
                 <div class="col-md-6">
@@ -34,45 +35,33 @@
                     </div>
                     <div class="form-group">
                         <label>Категория</label>
-                        <select class="form-control select2" style="width: 100%;">
-                            <option>Alabama</option>
-                            <option>Alaska</option>
-                            <option selected="selected">California</option>
-                            <option>Delaware</option>
-                            <option>Tennessee</option>
-                            <option>Texas</option>
-                            <option>Washington</option>
-                        </select>
+                        {{ Form::select('category_id',
+                            $categories,
+                            $post->getCategoryID(),
+                            ['class' => 'form-control select2'])}}
                     </div>
                     <div class="form-group">
                         <label>Теги</label>
-                        <select class="form-control select2" multiple="multiple" data-placeholder="Выберите теги" style="width: 100%;">
-                            <option>Alabama</option>
-                            <option selected="selected">Alaska</option>
-                            <option>California</option>
-                            <option>Delaware</option>
-                            <option selected="selected">Tennessee</option>
-                            <option>Texas</option>
-                            <option>Washington</option>
-                        </select>
+                        {{ Form::select('tags[]',
+                           $tags,
+                          $post->tags->pluck('id')->all(),
+                           ['class' => 'form-control select2', 'multiple'=>"multiple", 'data-placeholder'=>"Выберите теги"])}}
                     </div>
                     <!-- Date -->
                     <div class="form-group">
                         <label>Дата:</label>
-
                         <div class="input-group date">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                             </div>
-                            <input type="text" class="form-control pull-right" id="datepicker" value="08/29/2017">
+                            <input type="text" name="date" class="form-control pull-right" id="datepicker" value="{{$post->date}}">
                         </div>
-                        <!-- /.input group -->
                     </div>
 
                     <!-- checkbox -->
                     <div class="form-group">
                         <label>
-                            <input type="checkbox" class="minimal" checked>
+                            {{Form::checkbox('is_futured',1,$post->is_futured,['class'=>'minimal'])}}
                         </label>
                         <label>
                             Рекомендовать
@@ -81,7 +70,7 @@
                     <!-- checkbox -->
                     <div class="form-group">
                         <label>
-                            <input type="checkbox" class="minimal">
+                            {{Form::checkbox('status',1,$post->is_futured,['class'=>'minimal'])}}
                         </label>
                         <label>
                             Черновик
