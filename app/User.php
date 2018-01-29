@@ -2,7 +2,7 @@
 
 namespace App;
 
-use \Storage;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
