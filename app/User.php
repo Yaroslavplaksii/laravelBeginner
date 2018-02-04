@@ -43,7 +43,8 @@ class User extends Authenticatable
     {//метод додавання користувача
         $user = new static;//поточний клас
         $user->fill($fields);//беремо і додаємо поля які вказані в масиві $fillable
-        $user->password = bcrypt($fields['password']);//зашифровуємо пароль
+        $user->generatePassword($fields['password']);
+       // $user->password = bcrypt($fields['password']);//зашифровуємо пароль
         $user->save();//зберігаємо
 
         return $user;//якщо потрібно
