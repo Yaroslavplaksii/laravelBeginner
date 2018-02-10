@@ -19,7 +19,7 @@
                             </div>
                             <div class="decoration">
                                 @foreach($post->tags as $tag)
-                                    <a href="#" class="btn btn-default">{{$tag->title}}</a>
+                                    <a href="{{route('tag.show',$tag->slug)}}" class="btn btn-default">{{$tag->title}}</a>
                                 @endforeach
                             </div>
                             <div class="social-share">

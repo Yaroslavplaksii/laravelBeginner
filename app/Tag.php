@@ -12,7 +12,7 @@ class Tag extends Model
     protected $fillable = ['title'];
 
     public function posts(){
-        return $this->belongToMany(//звязки багато до багатьох
+        return $this->belongsToMany(//звязки багато до багатьох
             Post::class,//модель
             'post_tags',//назва таблиці
             'tag_id',//id мітки
