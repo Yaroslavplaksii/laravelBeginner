@@ -11,8 +11,19 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     public function index(){
+//        $popularPosts = Post::orderBy('views','DESC')->take(3)->get(); //можна таким способом, але прийдеться кругом копыювати такий код, або чеерез view composer
+//        $futuredPosts = Post::where('is_featured',1)->take(3)->get();
+//        $recentPosts = Post::orderBy('date','DESC')->take(4)->get();
+//        $categories = Category::all();
+
         $posts = Post::paginate(2);
-        return view('pages.index',['posts'=>$posts]);
+        return view('pages.index',[
+            'posts'=>$posts,
+//            'popularPosts'=>$popularPosts,
+//            'futuredPosts'=>$futuredPosts,
+//            'recentPosts'=>$recentPosts,
+//            'categories'=>$categories
+            ]);
     }
 
     public function show($slug){
