@@ -51,9 +51,13 @@
                 </ul>
 
                 <ul class="nav navbar-nav text-uppercase pull-right">
-                    <li><a href="#">Register</a></li>
-                    <li><a href="about-me.html">Login</a></li>
-                    <li><a href="contact.html">My profile</a></li>
+                 @if(Auth::check())
+                        <li><a href="/profile">My profile</a></li>
+                        <li><a href="/logout">Log out</a></li>
+                  @else
+                    <li><a href="/register">Register</a></li>
+                    <li><a href="/login">Login</a></li>
+                @endif
                 </ul>
 
             </div>

@@ -7,14 +7,18 @@
                 <div class="col-md-8">
 
                     <div class="leave-comment mr0"><!--leave comment-->
-
+                    @include('admin.errors')
+                        @if(session('status'))
+                            {{session('status')}}
+                        @endif
                         <h3 class="text-uppercase">Login</h3>
                         <br>
-                        <form class="form-horizontal contact-form" role="form" method="post" action="">
+                        <form class="form-horizontal contact-form" role="form" method="post" action="/login">
+                            {{csrf_field()}}
                             <div class="form-group">
                                 <div class="col-md-12">
                                     <input type="text" class="form-control" id="email" name="email"
-                                           placeholder="Email">
+                                           placeholder="Email" value="{{old('email')}}">
                                 </div>
                             </div>
                             <div class="form-group">
