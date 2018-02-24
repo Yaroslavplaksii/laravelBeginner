@@ -24,16 +24,16 @@ Route::get('/tag/{slug}','HomeController@tag')->name('tag.show');
 Route::get('/category/{slug}','HomeController@category')->name('category.show');
 
 Route::group(['middleware'	=>	'auth'], function(){ //стандартний middlware RedirectIfAuthenticated
-    //Route::get('/profile', 'ProfileController@index');
-    //Route::post('/profile', 'ProfileController@store');
+    Route::get('/profile', 'ProfileController@index');
+    Route::post('/profile', 'ProfileController@store');
     Route::get('/logout', 'AuthController@logout');
-    //Route::post('/comment', 'CommentsController@store');
+    Route::post('/comment', 'CommentsController@store');
 });
 
 Route::group(['middleware'	=>	'guest'], function(){
     Route::get('/register', 'AuthController@registerForm');
     Route::post('/register', 'AuthController@register');
-    Route::get('/login','AuthController@loginForm')->name('login');
+    Route::get('/login','AuthController@loginForm')->name('login');//для того щоб був редірект
     Route::post('/login', 'AuthController@login');
 });
 
@@ -43,4 +43,7 @@ Route::group(['prefix'=>'admin','namespace'=>'Admin','middleware'=>'admin'],func
     Route::resource('/tags','TagsController');
     Route::resource('/users','UsersController');
     Route::resource('/posts','PostsController');
+    Route::get('/comments','CommentsController@index');
+    Route::get('/comments/toggle/{id}','CommentsController@toggle');
+    Route::delete('/comments/{id}/destroy','CommentsController@destroy')->name('comments.destroy');
 });

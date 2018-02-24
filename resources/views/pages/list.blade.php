@@ -24,7 +24,7 @@
                                 <div class="entry-content">
                                     <p>{!! $post->description  !!}</p>
                                     <div class="social-share">
-                                        <span class="social-share-title pull-left text-capitalize">By Rubel On {{$post->getDate()}}</span>
+                                        <span class="social-share-title pull-left text-capitalize">By {{$post->author['name']}} On {{$post->getDate()}}</span>
                                     </div>
                                 </div>
                             </div>

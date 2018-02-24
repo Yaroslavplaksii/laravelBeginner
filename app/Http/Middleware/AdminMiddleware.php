@@ -18,7 +18,7 @@ class AdminMiddleware
     public function handle($request, Closure $next)
     {
         if(Auth::check() && Auth::user()->is_admin){//Auth::user() поверне поточного користувача
-            return $next($request);
+            return $next($request);//Auth::check() поверне true якщо користувач залогінений
         }
         abort(404);//виведеться 404 помилка
     }
