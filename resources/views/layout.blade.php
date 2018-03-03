@@ -75,7 +75,9 @@
     </div>
     <!-- /.container-fluid -->
 </nav>
-
+@if(session('status'))
+    {{session('status')}}
+@endif
 @yield('content')
 
 <div id="footer">
